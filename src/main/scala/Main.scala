@@ -21,49 +21,27 @@ object Main {
       case _                 => None
     }
 
-    def sexpr: Parser[SExpr] = num | slist | symbol
+    def sexpr: Parser[SExpr] = ???
 
-    def slist: Parser[SList] = "(" ~> sexpr.* <~ ")" ^^ { exprs =>
-      SList(exprs)
-    }
+    def slist: Parser[SList] = ???
 
     def symbol: Parser[SSym] = """[^()"\s]""".r ^^ SSym
 
-    def num: Parser[SNum] = wholeNumber ^^ { s => SNum(s.toInt) }
+    def num: Parser[SNum] = ???
   }
 
   object Interpreter {
-    def nums: PartialFunction[SExpr, Int] = { case SNum(num) =>
-      num
-    }
-
-    def add(args: List[SExpr]): SNum = SNum(args.collect(nums).sum)
-
-    def sub(args: List[SExpr]): SNum = args match {
-      case SNum(l) :: Nil  => SNum(-l)
-      case SNum(l) :: rest => SNum(l - add(rest).num)
-      case x               => throw new IllegalArgumentException(s"Can't subtract $x")
-    }
-
-    def mul(args: List[SExpr]): SNum = {
-      SNum(args.collect(nums).product)
-    }
+    def add(args: List[SExpr]): SNum = SNum(
+      args
+        .collect({ case SNum(num) =>
+          num
+        })
+        .sum
+    )
 
     def eval(exprs: SExpr*): SExpr = eval(SList(exprs.toList))
 
-    def eval(l: SList): SExpr = {
-      val e: List[SExpr] = l.list.map {
-        case slist: SList => eval(slist)
-        case exp          => exp
-      }
-
-      e match {
-        case SSym("+") :: args => add(args)
-        case SSym("-") :: args => sub(args)
-        case SSym("*") :: args => mul(args)
-        case exprs             => SList(exprs)
-      }
-    }
+    def eval(l: SList): SExpr = ???
   }
 
   def main(args: Array[String]): Unit = {
@@ -71,12 +49,10 @@ object Main {
 
     println(s"Parsing and evaluating: $input")
 
-    Parser
-      .parseInput(input)
-      .collect { case s: SList =>
-        Interpreter.eval(s)
-      }
-      .foreach(result => println(result.render()))
+    Parser.parseInput(input).map(Interpreter.eval(_)).map(_.render()) match {
+      case Some(value) => println(s"Result: $value")
+      case None        => throw new Error("Something went horribly wrong...")
+    }
   }
 
   implicit class Render(exp: SExpr) {
