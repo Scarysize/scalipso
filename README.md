@@ -27,10 +27,10 @@ _(Hint: Disconnect your company VPN)_
 
    The first start might take some time. You should see a shell displaying something like `sbt:Scala-Intro> ...`
 
-3. Within the sbt shell execute unit tests
+3. Within the sbt shell compile the code to test the setup.
 
    ```sh
-   test
+   compile
    ```
 
 ## Tips
